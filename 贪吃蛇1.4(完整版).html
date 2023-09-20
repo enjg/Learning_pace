@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        li {
+            /* width: 50px;
+            height: 50px; */
+            float: left;
+            margin: 0;
+            padding: 0;
+            background-color: rgb(178, 178, 178);
+            box-sizing: border-box;
+            border: 1px solid black;
+        }
+
+        ul {
+            width: 1500px;
+            height: 1500px;
+            float: left;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            /* border: 10px solid black; */
+        }
+
+        #tgts {
+            width: 1500px;
+            height: 1500px;
+            padding: 0;
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+
+        }
+
+        #tsk {
+            width: 800px;
+            height: 500px;
+            position: fixed;
+            top: 500px;
+            left: 350px;
+            background-color: black;
+            z-index: 99;
+            font-size: 60px;
+            text-align: center;
+            color: white;
+        }
+
+        #tsk button {
+            width: 300px;
+            height: 120px;
+            font-size: 50px;
+            font-weight: bold;
+            border-radius: 50%;
+        }
+
+        #tsk>h1 {
+            margin: 0;
+        }
+
+        #jpcz>div {
+            width: 100px;
+            height: 100px;
+            position: fixed;
+            border: 1px solid black;
+
+        }
+
+        #jpcz>div img {
+            width: 100px;
+            height: 100px;
+            opacity: 0.8;
+        }
+
+        #jpcz>div:nth-of-type(1) {
+            bottom: 150px;
+            right: 250px;
+        }
+
+        #jpcz>div:nth-of-type(2) {
+            bottom: 150px;
+            right: 80px;
+        }
+
+        #jpcz>div:nth-of-type(3) {
+            bottom: 350px;
+            right: 250px;
+        }
+
+        #jpcz>div:nth-of-type(4) {
+            bottom: 150px;
+            right: 420px;
+        }
+
+        #xz>* {
+            display: inline-block;
+        }
+
+        #xz {
+            width: 800px;
+            height: 150px;
+            text-align: center;
+            padding: 0;
+        }
+
+        #xz>img {
+            width: 150px;
+            margin-top: 0;
+        }
+
+        #xz>h1 {
+            margin-left: 100px;
+            margin-right: 100px;
+            line-height: 150px;
+            margin-top: 0;
+        }
+
+        button {
+            margin-top: 50px;
+        }
+
+        #jd {
+            width: 250px;
+            height: 100px;
+            background-color: green;
+            opacity: 0.8;
+            border-radius: 50px;
+            position: fixed;
+            top: 150px;
+            right: 200px;
+            z-index: 9999;
+            text-align: center;
+            display: none;
+        }
+
+        #jd>span {
+            font-size: 50px;
+            line-height: 100px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="tgts">
+        <ul id="cd">
+
+        </ul>
+        <div id="tsk">
+            <h1>开始游戏</h1>
+            <div id="xz">
+                <img src="./贪吃蛇/上下左右Triangle1 (4).png" alt="" onclick="handoff(0)">
+                <h1>1</h1>
+                <img src="./贪吃蛇/上下左右Triangle1 (2).png" alt="" onclick="handoff(1)">
+            </div>
+            <button onclick="dj()">点击</button>
+        </div>
+        <div id="jpcz">
+            <div><img src="./贪吃蛇/上下左右Triangle1 (1).png" alt=""></div>
+            <div><img src="./贪吃蛇/上下左右Triangle1 (2).png" alt=""></div>
+            <div><img src="./贪吃蛇/上下左右Triangle1 (3).png" alt=""></div>
+            <div><img src="./贪吃蛇/上下左右Triangle1 (4).png" alt=""></div>
+        </div>
+        <div id="jd">
+            <span>2</span><span>/</span><span></span>
+        </div>
+    </div>
+</body>
+<script>
+    //果子定位
+    var FruitPositioning = -1;
+    //地图
+    var MapArray = [];
+    //贪吃蛇
+    var SnakesArray = [];
+    //障碍
+    var BarrierArray = [];
+    //速度
+    var velocity = 250;
+    //难度等级
+    var DifficultyArray = [
+        {
+            nd: 1,
+            cd: 40
+        },
+        {
+            nd: 2,
+            cd: 20
+        },
+        {
+            nd: 3,
+            cd: 20
+        }
+    ];
+    //当前难度
+    var difficulty = 0;
+    //方向
+    var direction;
+
+    //切换关卡难度
+    function handoff(a) {
+        if (a) {
+            if (difficulty + 1 < DifficultyArray.length) {
+                difficulty++;
+            } else {
+                difficulty = 0;
+            }
+            document.getElementById('xz').querySelector('h1').textContent = DifficultyArray[difficulty].nd
+        } else {
+            if (difficulty < 1) {
+                difficulty = 2;
+            } else {
+                difficulty--;
+            }
+            document.getElementById('xz').querySelector('h1').textContent = DifficultyArray[difficulty].nd
+
+        }
+    }
+
+
+
+    function dj() {
+        //恢复基础参数原始值
+        MapArray = [];
+        SnakesArray = [];
+        BarrierArray = [];
+        zawarray = []
+        direction = DifficultyArray[difficulty].cd
+        velocity = 250;
+
+        //贪吃蛇初始
+        SnakesArray.push(DifficultyArray[difficulty].cd * DifficultyArray[difficulty].cd / 2 - DifficultyArray[difficulty].cd / 2)
+        SnakesArray.push(SnakesArray[0] + DifficultyArray[difficulty].cd)
+
+        //游戏进度显示
+        document.getElementById('jd').style.display = 'block'
+        document.getElementById('jd').getElementsByTagName('span')[2].textContent = DifficultyArray[difficulty].cd * 2
+
+        //删除场地
+        var cdElement = document.getElementById("cd");
+        while (cdElement.firstChild) {
+            cdElement.removeChild(cdElement.firstChild);
+        }
+
+        //隐藏开始界面
+        document.getElementById('tsk').style.display = "none";
+
+        //调用方法
+        qd();
+    }
+
+
+    //开始游戏
+    function qd() {
+        //创建场地数组
+        // (function () {
+        for (let i = 1; i <= DifficultyArray[difficulty].cd * DifficultyArray[difficulty].cd; i++) {
+            // console.log(i)
+            MapArray.push(i);
+        }
+        // })();
+        //将数组渲染成节点
+        // (function () {
+        var tableHTML = "";
+        for (let i = 0; i < MapArray.length; i++) {
+            if ((i) % DifficultyArray[difficulty].cd == 0) {
+                tableHTML += '<br>';
+            }
+            tableHTML += '<li id="' + MapArray[i] + '">' + '</li>';
+        }
+        document.getElementById('cd').insertAdjacentHTML('beforeend', tableHTML);
+
+        //把边界添加到障碍数组中
+        for (let i = 1; i <= MapArray.length; i++) {
+            if (Math.floor(i / DifficultyArray[difficulty].cd) == 0 || i % DifficultyArray[difficulty].cd == 1 || i % DifficultyArray[difficulty].cd == 0 || Math.floor(i / DifficultyArray[difficulty].cd) == DifficultyArray[difficulty].cd - 1) {
+                BarrierArray.push(i);
+            }
+        }
+        // })();
+
+        //判断难度是否需要添加障碍物
+        if (difficulty == 2) {
+            BarrierArray.push(85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 110, 130, 150, 257, 277, 297, 317, 245, 265, 285, 305);
+        }
+
+        //把障碍物数组渲染背景颜色
+        for (let i = 0; i < BarrierArray.length; i++) {
+            document.getElementById(BarrierArray[i]).style.backgroundColor = 'black';
+        }
+
+        //更具场地大小动态每个节点大小
+        var hw = 1500 / DifficultyArray[difficulty].cd;
+        var cdElement = document.getElementById("cd");
+        var liElements = cdElement.getElementsByTagName("li");
+        for (var i = 0; i < liElements.length; i++) {
+            var liElement = liElements[i];
+            liElement.style.width = hw + "px";
+            liElement.style.height = hw + "px";
+        }
+
+        //贪吃蛇运动定时器
+        var ydgz = function () {
+            //判断是否有重复值
+            const duplicate2 = function (arr) {
+                return new Set(arr).size != arr.length;
+            }
+            //判断是否重复或者撞击到障碍物，如果为真就退出游戏，游戏失败
+            if (duplicate2(SnakesArray) || BarrierArray.includes(SnakesArray[0])) {
+                document.getElementById('tsk').style.display = "block";
+                document.getElementById("tsk").querySelector("h1").textContent = "游戏失败";
+                document.getElementById("tsk").querySelector("button").textContent = "重玩";
+                FruitPositioning = -1;
+                clearInterval(intervalId);
+                return
+            }
+            //贪吃蛇的运动，定时器每执行一次就向前添加一个
+            SnakesArray.unshift(SnakesArray[0] + direction);
+
+            //判断果子是否存在，如果不存在就随机生成
+            if (FruitPositioning == -1) {
+                var abc = [];
+                abc.push(...SnakesArray);
+                abc.push(...BarrierArray);
+                const newArray = MapArray.filter(value => !abc.includes(value));
+                var num = Math.floor(Math.random() * newArray.length);
+                FruitPositioning = newArray[num];
+                document.getElementById(FruitPositioning).style.backgroundColor = "green";
+            }
+
+            //判断贪吃蛇是否吃到果子
+            if (SnakesArray[0] == FruitPositioning) {
+                //如果吃到就跟新果子状态，
+                FruitPositioning = -1;
+                //跟新当前游戏进度
+                document.getElementById('jd').getElementsByTagName('span')[0].textContent = SnakesArray.length;
+            } else {
+                //如果没吃到就删除贪吃蛇数组最后一个并更改其背景
+                document.getElementById(SnakesArray[SnakesArray.length - 1]).style.backgroundColor = 'rgb(178, 178, 178)';
+                SnakesArray.pop();
+            }
+
+            //渲染贪吃蛇
+            for (let i = 0; i < SnakesArray.length; i++) {
+                document.getElementById(SnakesArray[i]).style.backgroundColor = 'red';
+            }
+
+            //渲染贪吃蛇头部
+            document.getElementById(SnakesArray[0]).style.backgroundColor = 'yellow';
+
+            //根据贪吃蛇的长度重新改变速度
+            switch (SnakesArray.length / (DifficultyArray[difficulty].cd / 2)) {
+                case 0:
+                    velocity = 200;
+                    console.log(velocity);
+                    break;
+                case 1:
+                    velocity = 150;
+                    console.log(velocity);
+
+                    break;
+                case 2:
+                    velocity = 100;
+                    console.log(velocity);
+
+                    break;
+                case 3:
+                    velocity = 50;
+                    console.log(velocity);
+
+                    break;
+                case 4:
+                    document.getElementById('tsk').style.display = "block";
+                    document.getElementById("tsk").querySelector("h1").textContent = "游戏通关";
+                    document.getElementById("tsk").querySelector("button").textContent = "开始";
+                    FruitPositioning = -1;
+                    clearInterval(intervalId);
+                    return;
+                    break;
+            }
+
+
+
+
+
+
+        }
+        var intervalId = setInterval(ydgz, velocity);
+    }
+
+
+
+
+    //定义键盘事件
+    document.addEventListener('keydown', function (event) {
+        document.getElementById("jpcz").querySelectorAll("div").forEach(function (div) {
+            div.style.backgroundColor = "";
+        });
+        if (event.keyCode === 37 && direction != 1) {
+            // 左箭头键
+            // 执行左移操作
+            direction = -1;
+            document.getElementById("jpcz").querySelectorAll("div")[3].style.backgroundColor = "rgba(255, 255, 255, 0.5)";
+        } else if (event.keyCode === 38 && direction != DifficultyArray[difficulty].cd) {
+            // 上箭头键
+            // 执行上移操作
+            direction = -DifficultyArray[difficulty].cd;
+            document.getElementById("jpcz").querySelectorAll("div")[2].style.backgroundColor = "rgba(255, 255, 255, 0.5)";
+
+        } else if (event.keyCode === 39 && direction != -1) {
+            // 右箭头键
+            // 执行右移操作
+            direction = 1;
+            document.getElementById("jpcz").querySelectorAll("div")[1].style.backgroundColor = "rgba(255, 255, 255, 0.5)";
+
+        } else if (event.keyCode === 40 && direction != -DifficultyArray[difficulty].cd) {
+            // 下箭头键
+            // 执行下移操作
+            direction = DifficultyArray[difficulty].cd;
+            document.getElementById("jpcz").querySelectorAll("div")[0].style.backgroundColor = "rgba(255, 255, 255, 0.5)";
+
+        }
+    });
+</script>
+
+</html>
